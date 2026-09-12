@@ -34,6 +34,22 @@
   tbody td:first-child { color: #f0f0f0; font-weight: 500; }
   .pr-tag { display: inline-block; background: rgba(255,159,74,0.15); color: #ff9f4a; font-size: 0.6rem; padding: 1px 6px; border-radius: 10px; margin-left: 6px; letter-spacing: 0.5px; }
   .peak { color: #ff9f4a; font-weight: 600; }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    h1 { font-size: 1.8rem; }
+    .stats { grid-template-columns: 1fr; gap: 8px; }
+    .stat-val { font-size: 1.5rem; }
+    .pr-grid { grid-template-columns: 1fr; }
+    .card { padding: 14px; }
+    .tabs { gap: 6px; }
+    .tab { padding: 6px 10px; font-size: 0.68rem; }
+    .chart-wrap, table { overflow-x: auto; display: block; }
+    table { min-width: 480px; }
+    thead th, tbody td { padding: 7px 8px; font-size: 0.75rem; }
+    canvas { min-width: 320px; }
+  }
 </style>
 </head>
 <body>
