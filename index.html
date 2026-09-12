@@ -76,13 +76,13 @@
 </div>
 
 <!-- WORKOUT TABLES -->
-<div class="tabs">
-  <div class="tab active" onclick="showWorkout(event,0)">Workout A</div>
+<div class="tabs" id="workoutTabs">
+  <div class="tab" onclick="showWorkout(event,0)">Workout A</div>
   <div class="tab" onclick="showWorkout(event,1)">Workout B</div>
   <div class="tab" onclick="showWorkout(event,2)">Workout C</div>
 </div>
 
-<div id="workout0" class="card">
+<div id="workout0" class="card" style="display:none">
   <h2>Workout A</h2>
   <table>
     <thead><tr><th>Exercise</th><th>Start</th><th>Peak</th><th>Sets × Reps</th><th>+%</th></tr></thead>
@@ -602,7 +602,7 @@ function showWeight(e, period) {
 }
 
 function showWorkout(e,idx) {
-  document.querySelectorAll('.tabs:last-of-type .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#workoutTabs .tab').forEach(t=>t.classList.remove('active'));
   e.target.classList.add('active');
   [0,1,2].forEach(i=>document.getElementById('workout'+i).style.display=i===idx?'block':'none');
 }
