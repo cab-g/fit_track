@@ -567,7 +567,9 @@ function drawChart(id, labels, datasets) {
       ctx.save(); ctx.translate(xS(i),PAD.top+cH+14);
       ctx.rotate(-Math.PI/5);
       ctx.fillStyle='#555'; ctx.font='10px system-ui'; ctx.textAlign='right';
-      ctx.fillText(l,0,0); ctx.restore();
+      // Show full date for weight chart (labels are full dates), short for others
+      const lbl = typeof l === 'string' && l.length === 10 ? l.slice(0,7) : String(l);
+      ctx.fillText(lbl,0,0); ctx.restore();
     }
   });
   datasets.forEach((ds,di)=>{
@@ -580,11 +582,7 @@ function drawChart(id, labels, datasets) {
       first=false;
     });
     ctx.stroke();
-    ds.data.forEach((v,i)=>{
-      if(v==null)return;
-      ctx.fillStyle=col; ctx.beginPath();
-      ctx.arc(xS(i),yS(v),3,0,Math.PI*2); ctx.fill();
-    });
+    // dots removed for cleaner line
     if(datasets.length>1){
       const ly=PAD.top+di*20;
       ctx.fillStyle=col; ctx.fillRect(PAD.left+cW+8,ly-5,14,3);
@@ -598,7 +596,7 @@ function showWeight(e, period) {
   document.querySelectorAll('#weightCard .tab').forEach(t=>t.classList.remove('active'));
   e.target.classList.add('active');
   const entries = filterWeight(period);
-  drawChart('weightChart', entries.map(e=>e.d.slice(5)), [{label:'Weight (kg)',data:entries.map(e=>e.w)}]);
+  drawChart('weightChart', entries.map(e=>e.d), [{label:'Weight (kg)',data:entries.map(e=>e.w)}]);
 }
 
 function showWorkout(e,idx) {
@@ -609,7 +607,7 @@ function showWorkout(e,idx) {
 
 window.addEventListener('load',()=>{
   drawChart('weightChart',
-    allWeightEntries.map(e=>e.d.slice(5)),
+    allWeightEntries.map(e=>e.d),
     [{label:'Weight (kg)',data:allWeightEntries.map(e=>e.w)}]
   );
 });
