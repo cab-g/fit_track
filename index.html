@@ -7,22 +7,33 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #0a0a0a; color: #f0f0f0; font-family: system-ui, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
-  h1 { font-size: 2.5rem; color: #ff9f4a; letter-spacing: 3px; margin-bottom: 16px; text-transform: none; font-weight: 700; }
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
+  body { background: #0a0a0a; color: #f0f0f0; font-family: system-ui, sans-serif; padding: 20px; max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 2.5rem; color: #ff9f4a; letter-spacing: 3px; margin-bottom: 16px; font-weight: 700; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
   .stat { background: #1a1a1a; border: 1px solid #252525; border-radius: 12px; padding: 16px; }
   .stat-val { font-size: 2rem; color: #ff9f4a; font-weight: 700; }
   .stat-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
   .card { background: #1a1a1a; border: 1px solid #252525; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-  .card h2 { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .tab { padding: 8px 16px; border-radius: 20px; border: 1px solid #252525; background: #1a1a1a; color: #666; cursor: pointer; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s; }
-  .tab.active { background: #ff9f4a; color: #000; border-color: #ff9f4a; }
+  .card h2 { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab { padding: 7px 14px; border-radius: 20px; border: 1px solid #252525; background: #131313; color: #666; cursor: pointer; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s; }
+  .tab.active { background: #ff9f4a; color: #000; border-color: #ff9f4a; font-weight: 600; }
+  /* PR grid */
   .pr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .pr-item { background: #131313; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
   .pr-name { font-size: 0.8rem; color: #999; }
   .pr-val { font-size: 1rem; color: #ff9f4a; font-weight: 600; }
   .pr-pct { font-size: 0.7rem; color: #666; margin-left: 4px; }
+  /* Workout tables */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  thead th { color: #666; text-transform: uppercase; letter-spacing: 1px; font-size: 0.68rem; padding: 8px 10px; border-bottom: 1px solid #252525; text-align: left; }
+  tbody tr { border-bottom: 1px solid #1f1f1f; transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #222; }
+  tbody td { padding: 9px 10px; color: #ccc; }
+  tbody td:first-child { color: #f0f0f0; font-weight: 500; }
+  .pr-tag { display: inline-block; background: rgba(255,159,74,0.15); color: #ff9f4a; font-size: 0.6rem; padding: 1px 6px; border-radius: 10px; margin-left: 6px; letter-spacing: 0.5px; }
+  .peak { color: #ff9f4a; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -34,9 +45,10 @@
   <div class="stat"><div class="stat-val">75kg</div><div class="stat-label">Target Weight</div></div>
 </div>
 
+<!-- WEIGHT CHART -->
 <div class="card" id="weightCard">
   <h2>weight</h2>
-  <div class="tabs" style="margin-bottom:14px">
+  <div class="tabs">
     <div class="tab active" onclick="showWeight(event,'all')">All time</div>
     <div class="tab" onclick="showWeight(event,'12')">12 months</div>
     <div class="tab" onclick="showWeight(event,'6')">6 months</div>
@@ -46,6 +58,7 @@
   <canvas id="weightChart" height="220"></canvas>
 </div>
 
+<!-- PR SUMMARY -->
 <div class="card">
   <h2>current prs vs starting weights</h2>
   <div class="pr-grid">
@@ -55,13 +68,14 @@
     <div class="pr-item"><span class="pr-name">Lat Pulldown</span><div><span class="pr-val">60kg</span><span class="pr-pct">+33%</span></div></div>
     <div class="pr-item"><span class="pr-name">Leg Press</span><div><span class="pr-val">155kg</span><span class="pr-pct">+17%</span></div></div>
     <div class="pr-item"><span class="pr-name">Pec Fly</span><div><span class="pr-val">54kg</span><span class="pr-pct">+100%</span></div></div>
-    <div class="pr-item"><span class="pr-name">Pull Ups</span><div><span class="pr-val">5x3</span><span class="pr-pct">from zero</span></div></div>
-    <div class="pr-item"><span class="pr-name">Chin Ups</span><div><span class="pr-val">6x3</span><span class="pr-pct">from zero</span></div></div>
+    <div class="pr-item"><span class="pr-name">Pull Ups</span><div><span class="pr-val">5×3</span><span class="pr-pct">from zero</span></div></div>
+    <div class="pr-item"><span class="pr-name">Chin Ups</span><div><span class="pr-val">6×3</span><span class="pr-pct">from zero</span></div></div>
     <div class="pr-item"><span class="pr-name">Bicep Curl</span><div><span class="pr-val">12kg</span><span class="pr-pct">+20%</span></div></div>
     <div class="pr-item"><span class="pr-name">Tricep Pushdown</span><div><span class="pr-val">30kg</span><span class="pr-pct">new</span></div></div>
   </div>
 </div>
 
+<!-- WORKOUT TABLES -->
 <div class="tabs">
   <div class="tab active" onclick="showWorkout(event,0)">Workout A</div>
   <div class="tab" onclick="showWorkout(event,1)">Workout B</div>
@@ -70,19 +84,64 @@
 
 <div id="workout0" class="card">
   <h2>Workout A — Push / Shoulders</h2>
-  <canvas id="chartA" height="240"></canvas>
+  <table>
+    <thead><tr><th>Exercise</th><th>Start</th><th>Peak</th><th>Sets × Reps</th><th>+%</th></tr></thead>
+    <tbody>
+      <tr><td>Shoulder Press</td><td>34kg</td><td class="peak">50kg <span class="pr-tag">PR</span></td><td>3×10</td><td>+47%</td></tr>
+      <tr><td>Incline Chest</td><td>50kg</td><td class="peak">75kg <span class="pr-tag">PR</span></td><td>3×10</td><td>+50%</td></tr>
+      <tr><td>Pec Fly</td><td>27kg</td><td class="peak">54kg <span class="pr-tag">PR</span></td><td>3×10</td><td>+100%</td></tr>
+      <tr><td>Pull Ups</td><td>0</td><td class="peak">5 reps</td><td>3 sets</td><td>—</td></tr>
+      <tr><td>Hanging Leg Raises</td><td>0</td><td class="peak">8 reps</td><td>3 sets</td><td>—</td></tr>
+      <tr><td>Bicep Curl</td><td>10kg</td><td class="peak">12kg</td><td>3×10</td><td>+20%</td></tr>
+    </tbody>
+  </table>
 </div>
+
 <div id="workout1" class="card" style="display:none">
   <h2>Workout B — Pull / Back</h2>
-  <canvas id="chartB" height="240"></canvas>
+  <table>
+    <thead><tr><th>Exercise</th><th>Start</th><th>Peak</th><th>Sets × Reps</th><th>+%</th></tr></thead>
+    <tbody>
+      <tr><td>Seated Row</td><td>41kg</td><td class="peak">61kg <span class="pr-tag">PR</span></td><td>3×10</td><td>+49%</td></tr>
+      <tr><td>Incline Chest</td><td>50kg</td><td class="peak">75kg</td><td>3×10</td><td>+50%</td></tr>
+      <tr><td>Lat Pulldown</td><td>45kg</td><td class="peak">60kg <span class="pr-tag">PR</span></td><td>3×10</td><td>+33%</td></tr>
+      <tr><td>Chin Ups</td><td>0</td><td class="peak">6 reps</td><td>3 sets</td><td>—</td></tr>
+      <tr><td>Hanging Leg Raises</td><td>0</td><td class="peak">8 reps</td><td>3 sets</td><td>—</td></tr>
+      <tr><td>Tricep Pushdown</td><td>—</td><td class="peak">30kg</td><td>3×12</td><td>new</td></tr>
+    </tbody>
+  </table>
 </div>
+
 <div id="workout2" class="card" style="display:none">
   <h2>Workout C — Legs / Compound</h2>
-  <canvas id="chartC" height="240"></canvas>
+  <table>
+    <thead><tr><th>Exercise</th><th>Start</th><th>Peak</th><th>Sets × Reps</th><th>+%</th></tr></thead>
+    <tbody>
+      <tr><td>Leg Press</td><td>132kg</td><td class="peak">155kg <span class="pr-tag">PR</span></td><td>3×10</td><td>+17%</td></tr>
+      <tr><td>Incline Chest</td><td>50kg</td><td class="peak">75kg</td><td>3×10</td><td>+50%</td></tr>
+      <tr><td>Seated Row</td><td>41kg</td><td class="peak">61kg</td><td>3×10</td><td>+49%</td></tr>
+      <tr><td>Pull Ups</td><td>0</td><td class="peak">5 reps</td><td>3 sets</td><td>—</td></tr>
+      <tr><td>Hanging Leg Raises</td><td>0</td><td class="peak">8 reps</td><td>3 sets</td><td>—</td></tr>
+      <tr><td>Bicep Curl</td><td>10kg</td><td class="peak">12kg</td><td>3×10</td><td>+20%</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <script>
-const COLORS = ['#ff9f4a','#4fc3f7','#ef9a9a','#ffb74d','#ce93d8','#80cbc4'];
+const allWeightEntries = [
+  {d:'2025-12-25',w:91},{d:'2026-04-24',w:87.5},{d:'2026-05-01',w:82.4},
+  {d:'2026-05-27',w:79.8},{d:'2026-06-03',w:80.2},{d:'2026-07-16',w:79.7},
+  {d:'2026-07-22',w:78.8},{d:'2026-07-23',w:80.4},{d:'2026-07-30',w:77.5},
+  {d:'2026-08-03',w:78.5},{d:'2026-08-15',w:77.3},{d:'2026-09-04',w:81},
+  {d:'2026-09-07',w:81.6},{d:'2026-09-11',w:82},{d:'2026-09-12',w:81.6},
+];
+
+function filterWeight(months) {
+  if (months==='all') return allWeightEntries;
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - parseInt(months));
+  return allWeightEntries.filter(e => new Date(e.d) >= cutoff);
+}
 
 function drawChart(id, labels, datasets) {
   const canvas = document.getElementById(id);
@@ -91,124 +150,75 @@ function drawChart(id, labels, datasets) {
   const W = canvas.parentElement.offsetWidth - 40;
   const H = canvas.height;
   canvas.width = W;
-  const PAD = {top:20, right:130, bottom:50, left:50};
-  const cW = W - PAD.left - PAD.right;
-  const cH = H - PAD.top - PAD.bottom;
-  ctx.fillStyle = '#1a1a1a';
-  ctx.fillRect(0,0,W,H);
+  const PAD = {top:20,right:130,bottom:50,left:50};
+  const cW = W-PAD.left-PAD.right;
+  const cH = H-PAD.top-PAD.bottom;
+  ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,W,H);
   const allVals = datasets.flatMap(d=>d.data).filter(v=>v!=null);
   const minV = Math.min(...allVals)*0.93;
   const maxV = Math.max(...allVals)*1.04;
-  const xS = i => PAD.left + (i/(labels.length-1))*cW;
-  const yS = v => PAD.top + cH - ((v-minV)/(maxV-minV))*cH;
+  const xS = i => PAD.left+(i/(Math.max(labels.length-1,1)))*cW;
+  const yS = v => PAD.top+cH-((v-minV)/(maxV-minV))*cH;
+  const COLORS=['#ff9f4a','#4fc3f7','#ef9a9a','#ffb74d','#ce93d8','#80cbc4'];
   for (let i=0;i<=4;i++) {
-    const y = PAD.top+(i/4)*cH;
-    const val = maxV-(i/4)*(maxV-minV);
+    const y=PAD.top+(i/4)*cH, val=maxV-(i/4)*(maxV-minV);
     ctx.strokeStyle='#222'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(PAD.left,y); ctx.lineTo(PAD.left+cW,y); ctx.stroke();
     ctx.fillStyle='#555'; ctx.font='11px system-ui'; ctx.textAlign='right';
-    ctx.fillText(Math.round(val), PAD.left-6, y+4);
+    ctx.fillText(Math.round(val),PAD.left-6,y+4);
   }
-  const step = Math.max(1,Math.floor(labels.length/6));
-  labels.forEach((l,i) => {
-    if (i%step===0 || i===labels.length-1) {
-      ctx.save(); ctx.translate(xS(i), PAD.top+cH+14);
+  const step=Math.max(1,Math.floor(labels.length/6));
+  labels.forEach((l,i)=>{
+    if(i%step===0||i===labels.length-1){
+      ctx.save(); ctx.translate(xS(i),PAD.top+cH+14);
       ctx.rotate(-Math.PI/5);
       ctx.fillStyle='#555'; ctx.font='10px system-ui'; ctx.textAlign='right';
       ctx.fillText(l,0,0); ctx.restore();
     }
   });
-  datasets.forEach((ds,di) => {
-    const col = COLORS[di];
+  datasets.forEach((ds,di)=>{
+    const col=COLORS[di];
     ctx.strokeStyle=col; ctx.lineWidth=2;
     ctx.beginPath(); let first=true;
-    ds.data.forEach((v,i) => {
-      if (v==null) return;
-      first ? ctx.moveTo(xS(i),yS(v)) : ctx.lineTo(xS(i),yS(v));
+    ds.data.forEach((v,i)=>{
+      if(v==null)return;
+      first?ctx.moveTo(xS(i),yS(v)):ctx.lineTo(xS(i),yS(v));
       first=false;
     });
     ctx.stroke();
-    ds.data.forEach((v,i) => {
-      if (v==null) return;
+    ds.data.forEach((v,i)=>{
+      if(v==null)return;
       ctx.fillStyle=col; ctx.beginPath();
       ctx.arc(xS(i),yS(v),3,0,Math.PI*2); ctx.fill();
     });
-    const ly = PAD.top+di*20;
-    ctx.fillStyle=col; ctx.fillRect(PAD.left+cW+8,ly-5,14,3);
-    ctx.fillStyle='#aaa'; ctx.font='10px system-ui'; ctx.textAlign='left';
-    ctx.fillText(ds.label, PAD.left+cW+26, ly);
+    if(datasets.length>1){
+      const ly=PAD.top+di*20;
+      ctx.fillStyle=col; ctx.fillRect(PAD.left+cW+8,ly-5,14,3);
+      ctx.fillStyle='#aaa'; ctx.font='10px system-ui'; ctx.textAlign='left';
+      ctx.fillText(ds.label,PAD.left+cW+26,ly);
+    }
   });
 }
 
-// Weight data — date (YYYY-MM-DD), weight (kg)
-const allWeightEntries = [
-  {d:'2025-12-25',w:91},
-  {d:'2026-04-24',w:87.5},
-  {d:'2026-05-01',w:82.4},
-  {d:'2026-05-27',w:79.8},
-  {d:'2026-06-03',w:80.2},
-  {d:'2026-07-16',w:79.7},
-  {d:'2026-07-22',w:78.8},
-  {d:'2026-07-23',w:80.4},
-  {d:'2026-07-30',w:77.5},
-  {d:'2026-08-03',w:78.5},
-  {d:'2026-08-15',w:77.3},
-  {d:'2026-09-04',w:81},
-  {d:'2026-09-07',w:81.6},
-  {d:'2026-09-11',w:82},
-  {d:'2026-09-12',w:81.6},
-];
-
-function filterWeight(months) {
-  if (months === 'all') return allWeightEntries;
-  const cutoff = new Date();
-  cutoff.setMonth(cutoff.getMonth() - parseInt(months));
-  return allWeightEntries.filter(e => new Date(e.d) >= cutoff);
-}
-
 function showWeight(e, period) {
-  document.querySelectorAll('#weightCard .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#weightCard .tab').forEach(t=>t.classList.remove('active'));
   e.target.classList.add('active');
   const entries = filterWeight(period);
-  drawChart('weightChart', entries.map(e=>e.d.slice(5)), [{label:'Weight (kg)', data:entries.map(e=>e.w)}]);
+  drawChart('weightChart', entries.map(e=>e.d.slice(5)), [{label:'Weight (kg)',data:entries.map(e=>e.w)}]);
 }
-
-const wLabels = allWeightEntries.map(e=>e.d.slice(5));
-const wData = allWeightEntries.map(e=>e.w);
-const wkA={labels:[1,2,3,4,5,6,7,8,9,10,11,12,13,14],datasets:[
-  {label:'Shoulder Press',data:[34,34,38,38,42,42,43,43,45,45,45,50,50,50]},
-  {label:'Incline Chest',data:[50,50,52,54,54,56,57.5,57.5,60,60,65,70,70,75]},
-  {label:'Pec Fly',data:[27,28,28,28,28,47,47,47,47,54,54,54,54,54]},
-  {label:'Pull Ups',data:[0,0,0,0,3,3,3,4,4,4,4,4,5,5]},
-]};
-const wkB={labels:[1,2,3,4,5,6,7,8,9,10,11,12,13],datasets:[
-  {label:'Seated Row',data:[41,41,41,41,43,45,47,47.5,47.5,47.5,49.5,54,54]},
-  {label:'Incline Chest',data:[50,52,54,56,57.5,57.5,60,60,65,70,70,70,70]},
-  {label:'Lat Pulldown',data:[45,45,47,47,49,50,60,60,60,60,60,60,60]},
-  {label:'Chin Ups',data:[0,0,0,3,3,5,5,5,5,6,6,6,6]},
-]};
-const wkC={labels:[1,2,3,4,5,6,7,8,9,10,11],datasets:[
-  {label:'Leg Press',data:[132,123,136,141,145,145,145,150,155,155,155]},
-  {label:'Incline Chest',data:[50,52,54,56,57.5,57.5,60,60,65,70,70]},
-  {label:'Seated Row',data:[41,41,43,45,45,47,47,47,49.5,54,61]},
-  {label:'Pull Ups',data:[0,0,0,3,3,3,3,4,4,5,5]},
-]};
-
-window.addEventListener('load', () => {
-  drawChart('weightChart', wLabels, [{label:'Weight (kg)',data:wData}]);
-  drawChart('chartA', wkA.labels, wkA.datasets);
-});
 
 function showWorkout(e,idx) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tabs:last-of-type .tab').forEach(t=>t.classList.remove('active'));
   e.target.classList.add('active');
   [0,1,2].forEach(i=>document.getElementById('workout'+i).style.display=i===idx?'block':'none');
-  setTimeout(()=>{
-    if(idx===0) drawChart('chartA',wkA.labels,wkA.datasets);
-    if(idx===1) drawChart('chartB',wkB.labels,wkB.datasets);
-    if(idx===2) drawChart('chartC',wkC.labels,wkC.datasets);
-  },50);
 }
+
+window.addEventListener('load',()=>{
+  drawChart('weightChart',
+    allWeightEntries.map(e=>e.d.slice(5)),
+    [{label:'Weight (kg)',data:allWeightEntries.map(e=>e.w)}]
+  );
+});
 </script>
 </body>
 </html>
