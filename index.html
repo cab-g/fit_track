@@ -594,8 +594,8 @@ function drawChart(id, labels, datasets) {
   const cH = H-PAD.top-PAD.bottom;
   ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,W,H);
   const allVals = datasets.flatMap(d=>d.data).filter(v=>v!=null);
-  const minV = Math.min(...allVals)*0.98;
-  const maxV = Math.max(...allVals)*1.02;
+  const minV = Math.min(...allVals)*0.93;
+  const maxV = Math.max(...allVals)*1.04;
   const xS = i => PAD.left+(i/(Math.max(labels.length-1,1)))*cW;
   const yS = v => PAD.top+cH-((v-minV)/(maxV-minV))*cH;
   const COLORS=['#ff9f4a','#4fc3f7','#ef9a9a','#ffb74d','#ce93d8','#80cbc4'];
