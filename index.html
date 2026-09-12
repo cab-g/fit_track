@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>crab track</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; color: #f0f0f0; font-family: system-ui, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 2.5rem; color: #ff9f4a; letter-spacing: 3px; margin-bottom: 16px; text-transform: none; font-weight: 700; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
+  .stat { background: #1a1a1a; border: 1px solid #252525; border-radius: 12px; padding: 16px; }
+  .stat-val { font-size: 2rem; color: #ff9f4a; font-weight: 700; }
+  .stat-label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+  .card { background: #1a1a1a; border: 1px solid #252525; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .card h2 { font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 8px 16px; border-radius: 20px; border: 1px solid #252525; background: #1a1a1a; color: #666; cursor: pointer; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s; }
+  .tab.active { background: #ff9f4a; color: #000; border-color: #ff9f4a; }
+  .pr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .pr-item { background: #131313; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .pr-name { font-size: 0.8rem; color: #999; }
+  .pr-val { font-size: 1rem; color: #ff9f4a; font-weight: 600; }
+  .pr-pct { font-size: 0.7rem; color: #666; margin-left: 4px; }
+</style>
+</head>
+<body>
+<h1>crab track</h1>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val">81.6kg</div><div class="stat-label">Current Weight</div></div>
+  <div class="stat"><div class="stat-val">−9.4kg</div><div class="stat-label">Lost Since Start</div></div>
+  <div class="stat"><div class="stat-val">75kg</div><div class="stat-label">Target Weight</div></div>
+</div>
+
+<div class="card">
+  <h2>Weight Progress (kg)</h2>
+  <canvas id="weightChart" height="220"></canvas>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showWorkout(event,0)">Workout A</div>
+  <div class="tab" onclick="showWorkout(event,1)">Workout B</div>
+  <div class="tab" onclick="showWorkout(event,2)">Workout C</div>
+</div>
+
+<div id="workout0" class="card">
+  <h2>Workout A — Push / Shoulders</h2>
+  <canvas id="chartA" height="240"></canvas>
+</div>
+<div id="workout1" class="card" style="display:none">
+  <h2>Workout B — Pull / Back</h2>
+  <canvas id="chartB" height="240"></canvas>
+</div>
+<div id="workout2" class="card" style="display:none">
+  <h2>Workout C — Legs / Compound</h2>
+  <canvas id="chartC" height="240"></canvas>
+</div>
+
+<div class="card">
+  <h2>Current PRs vs Starting Weights</h2>
+  <div class="pr-grid">
+    <div class="pr-item"><span class="pr-name">Incline Chest</span><div><span class="pr-val">75kg</span><span class="pr-pct">+50%</span></div></div>
+    <div class="pr-item"><span class="pr-name">Shoulder Press</span><div><span class="pr-val">50kg</span><span class="pr-pct">+47%</span></div></div>
+    <div class="pr-item"><span class="pr-name">Seated Row</span><div><span class="pr-val">61kg</span><span class="pr-pct">+49%</span></div></div>
+    <div class="pr-item"><span class="pr-name">Lat Pulldown</span><div><span class="pr-val">60kg</span><span class="pr-pct">+33%</span></div></div>
+    <div class="pr-item"><span class="pr-name">Leg Press</span><div><span class="pr-val">155kg</span><span class="pr-pct">+17%</span></div></div>
+    <div class="pr-item"><span class="pr-name">Pec Fly</span><div><span class="pr-val">54kg</span><span class="pr-pct">+100%</span></div></div>
+    <div class="pr-item"><span class="pr-name">Pull Ups</span><div><span class="pr-val">5x3</span><span class="pr-pct">from zero</span></div></div>
+    <div class="pr-item"><span class="pr-name">Chin Ups</span><div><span class="pr-val">6x3</span><span class="pr-pct">from zero</span></div></div>
+  </div>
+</div>
+
+<script>
+const COLORS = ['#ff9f4a','#4fc3f7','#ef9a9a','#ffb74d','#ce93d8','#80cbc4'];
+
+function drawChart(id, labels, datasets) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.offsetWidth - 40;
+  const H = canvas.height;
+  canvas.width = W;
+  const PAD = {top:20, right:130, bottom:50, left:50};
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(0,0,W,H);
+  const allVals = datasets.flatMap(d=>d.data).filter(v=>v!=null);
+  const minV = Math.min(...allVals)*0.93;
+  const maxV = Math.max(...allVals)*1.04;
+  const xS = i => PAD.left + (i/(labels.length-1))*cW;
+  const yS = v => PAD.top + cH - ((v-minV)/(maxV-minV))*cH;
+  for (let i=0;i<=4;i++) {
+    const y = PAD.top+(i/4)*cH;
+    const val = maxV-(i/4)*(maxV-minV);
+    ctx.strokeStyle='#222'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PAD.left,y); ctx.lineTo(PAD.left+cW,y); ctx.stroke();
+    ctx.fillStyle='#555'; ctx.font='11px system-ui'; ctx.textAlign='right';
+    ctx.fillText(Math.round(val), PAD.left-6, y+4);
+  }
+  const step = Math.max(1,Math.floor(labels.length/6));
+  labels.forEach((l,i) => {
+    if (i%step===0 || i===labels.length-1) {
+      ctx.save(); ctx.translate(xS(i), PAD.top+cH+14);
+      ctx.rotate(-Math.PI/5);
+      ctx.fillStyle='#555'; ctx.font='10px system-ui'; ctx.textAlign='right';
+      ctx.fillText(l,0,0); ctx.restore();
+    }
+  });
+  datasets.forEach((ds,di) => {
+    const col = COLORS[di];
+    ctx.strokeStyle=col; ctx.lineWidth=2;
+    ctx.beginPath(); let first=true;
+    ds.data.forEach((v,i) => {
+      if (v==null) return;
+      first ? ctx.moveTo(xS(i),yS(v)) : ctx.lineTo(xS(i),yS(v));
+      first=false;
+    });
+    ctx.stroke();
+    ds.data.forEach((v,i) => {
+      if (v==null) return;
+      ctx.fillStyle=col; ctx.beginPath();
+      ctx.arc(xS(i),yS(v),3,0,Math.PI*2); ctx.fill();
+    });
+    const ly = PAD.top+di*20;
+    ctx.fillStyle=col; ctx.fillRect(PAD.left+cW+8,ly-5,14,3);
+    ctx.fillStyle='#aaa'; ctx.font='10px system-ui'; ctx.textAlign='left';
+    ctx.fillText(ds.label, PAD.left+cW+26, ly);
+  });
+}
+
+const wLabels=['Dec 25','Apr 24','May 1','May 27','Jun 3','Jul 16','Jul 22','Jul 23','Jul 30','Aug 3','Aug 15','Sep 4','Sep 7','Sep 11','Sep 12'];
+const wData=[91,87.5,82.4,79.8,80.2,79.7,78.8,80.4,77.5,78.5,77.3,81,81.6,82,81.6];
+const wkA={labels:[1,2,3,4,5,6,7,8,9,10,11,12,13,14],datasets:[
+  {label:'Shoulder Press',data:[34,34,38,38,42,42,43,43,45,45,45,50,50,50]},
+  {label:'Incline Chest',data:[50,50,52,54,54,56,57.5,57.5,60,60,65,70,70,75]},
+  {label:'Pec Fly',data:[27,28,28,28,28,47,47,47,47,54,54,54,54,54]},
+  {label:'Pull Ups',data:[0,0,0,0,3,3,3,4,4,4,4,4,5,5]},
+]};
+const wkB={labels:[1,2,3,4,5,6,7,8,9,10,11,12,13],datasets:[
+  {label:'Seated Row',data:[41,41,41,41,43,45,47,47.5,47.5,47.5,49.5,54,54]},
+  {label:'Incline Chest',data:[50,52,54,56,57.5,57.5,60,60,65,70,70,70,70]},
+  {label:'Lat Pulldown',data:[45,45,47,47,49,50,60,60,60,60,60,60,60]},
+  {label:'Chin Ups',data:[0,0,0,3,3,5,5,5,5,6,6,6,6]},
+]};
+const wkC={labels:[1,2,3,4,5,6,7,8,9,10,11],datasets:[
+  {label:'Leg Press',data:[132,123,136,141,145,145,145,150,155,155,155]},
+  {label:'Incline Chest',data:[50,52,54,56,57.5,57.5,60,60,65,70,70]},
+  {label:'Seated Row',data:[41,41,43,45,45,47,47,47,49.5,54,61]},
+  {label:'Pull Ups',data:[0,0,0,3,3,3,3,4,4,5,5]},
+]};
+
+window.addEventListener('load', () => {
+  drawChart('weightChart', wLabels, [{label:'Weight (kg)',data:wData}]);
+  drawChart('chartA', wkA.labels, wkA.datasets);
+});
+
+function showWorkout(e,idx) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  e.target.classList.add('active');
+  [0,1,2].forEach(i=>document.getElementById('workout'+i).style.display=i===idx?'block':'none');
+  setTimeout(()=>{
+    if(idx===0) drawChart('chartA',wkA.labels,wkA.datasets);
+    if(idx===1) drawChart('chartB',wkB.labels,wkB.datasets);
+    if(idx===2) drawChart('chartC',wkC.labels,wkC.datasets);
+  },50);
+}
+</script>
+</body>
+</html>
