@@ -561,15 +561,22 @@ function drawChart(id, labels, datasets) {
     ctx.fillStyle='#555'; ctx.font='11px system-ui'; ctx.textAlign='right';
     ctx.fillText(Math.round(val),PAD.left-6,y+4);
   }
-  const step=Math.max(1,Math.floor(labels.length/6));
-  labels.forEach((l,i)=>{
-    if(i%step===0||i===labels.length-1){
-      ctx.save(); ctx.translate(xS(i),PAD.top+cH+14);
-      ctx.rotate(-Math.PI/5);
-      ctx.fillStyle='#555'; ctx.font='10px system-ui'; ctx.textAlign='right';
-      // Show full date for weight chart (labels are full dates), short for others
-      const lbl = typeof l === 'string' && l.length === 10 ? l.slice(0,7) : String(l);
-      ctx.fillText(lbl,0,0); ctx.restore();
+  // Smart label thinning — for large datasets show unique year-months only
+  const isFullDate = typeof labels[0] === 'string' && labels[0].length === 10;
+  let lastShown = '';
+  const maxLabels = Math.min(12, labels.length);
+  const step = Math.max(1, Math.floor(labels.length / maxLabels));
+  labels.forEach((l, i) => {
+    const lbl = isFullDate ? String(l).slice(0, 7) : String(l);
+    const show = isFullDate
+      ? (lbl !== lastShown && (i % step === 0 || i === labels.length - 1))
+      : (i % step === 0 || i === labels.length - 1);
+    if (show) {
+      lastShown = lbl;
+      ctx.save(); ctx.translate(xS(i), PAD.top + cH + 14);
+      ctx.rotate(-Math.PI / 5);
+      ctx.fillStyle = '#555'; ctx.font = '10px system-ui'; ctx.textAlign = 'right';
+      ctx.fillText(lbl, 0, 0); ctx.restore();
     }
   });
   datasets.forEach((ds,di)=>{
