@@ -39,16 +39,45 @@
   @media (max-width: 600px) {
     body { padding: 12px; }
     h1 { font-size: 1.8rem; }
-    .stats { grid-template-columns: 1fr; gap: 8px; }
-    .stat-val { font-size: 1.5rem; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stats .stat:first-child { grid-column: 1 / -1; }
+    .stat-val { font-size: 1.4rem; }
     .pr-grid { grid-template-columns: 1fr; }
-    .card { padding: 14px; }
-    .tabs { gap: 6px; }
+    .pr-item { padding: 8px 12px; }
+    .pr-name { font-size: 0.75rem; }
+    .card { padding: 12px; }
+    .tabs { gap: 5px; }
     .tab { padding: 6px 10px; font-size: 0.68rem; }
-    .chart-wrap, table { overflow-x: auto; display: block; }
-    table { min-width: 480px; }
-    thead th, tbody td { padding: 7px 8px; font-size: 0.75rem; }
-    canvas { min-width: 320px; }
+    /* Mobile table — stack each row as a card */
+    table { width: 100%; }
+    table thead { display: none; }
+    table tbody tr {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+      padding: 10px 0;
+      border-bottom: 1px solid #252525;
+      position: relative;
+    }
+    table tbody tr td:first-child {
+      grid-column: 1 / -1;
+      font-size: 0.75rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding-bottom: 4px;
+      font-weight: 400;
+    }
+    table tbody tr td {
+      padding: 2px 4px;
+      font-size: 0.82rem;
+      border: none;
+    }
+    table tbody tr td:nth-child(2)::before { content: 'Start '; font-size: 0.65rem; color: #555; display: block; }
+    table tbody tr td:nth-child(3)::before { content: 'Now '; font-size: 0.65rem; color: #555; display: block; }
+    table tbody tr td:nth-child(4)::before { content: 'PR '; font-size: 0.65rem; color: #555; display: block; }
+    table tbody tr td:nth-child(5) { display: none; }
+    table tbody tr td:nth-child(6) { grid-column: 3; font-size: 0.75rem; text-align: right; color: #ff9f4a; }
   }
 </style>
 </head>
