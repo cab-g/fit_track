@@ -49,8 +49,8 @@
 <div class="card" id="weightCard">
   <h2>weight</h2>
   <div class="tabs">
-    <div class="tab active" onclick="showWeight(event,'all')">All time</div>
-    <div class="tab" onclick="showWeight(event,'12')">12 months</div>
+    <div class="tab" onclick="showWeight(event,'all')">All time</div>
+    <div class="tab active" onclick="showWeight(event,'12')">12 months</div>
     <div class="tab" onclick="showWeight(event,'6')">6 months</div>
     <div class="tab" onclick="showWeight(event,'3')">3 months</div>
     <div class="tab" onclick="showWeight(event,'1')">1 month</div>
@@ -606,10 +606,8 @@ function showWorkout(e,idx) {
 }
 
 window.addEventListener('load',()=>{
-  drawChart('weightChart',
-    allWeightEntries.map(e=>e.d),
-    [{label:'Weight (kg)',data:allWeightEntries.map(e=>e.w)}]
-  );
+  const defaultEntries = filterWeight('12');
+  drawChart('weightChart', defaultEntries.map(e=>e.d), [{label:'Weight (kg)',data:defaultEntries.map(e=>e.w)}]);
 });
 </script>
 </body>
