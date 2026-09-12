@@ -34,8 +34,15 @@
   <div class="stat"><div class="stat-val">75kg</div><div class="stat-label">Target Weight</div></div>
 </div>
 
-<div class="card">
+<div class="card" id="weightCard">
   <h2>weight</h2>
+  <div class="tabs" style="margin-bottom:14px">
+    <div class="tab active" onclick="showWeight(event,'all')">All time</div>
+    <div class="tab" onclick="showWeight(event,'12')">12 months</div>
+    <div class="tab" onclick="showWeight(event,'6')">6 months</div>
+    <div class="tab" onclick="showWeight(event,'3')">3 months</div>
+    <div class="tab" onclick="showWeight(event,'1')">1 month</div>
+  </div>
   <canvas id="weightChart" height="220"></canvas>
 </div>
 
@@ -133,8 +140,41 @@ function drawChart(id, labels, datasets) {
   });
 }
 
-const wLabels=['Dec 25','Apr 24','May 1','May 27','Jun 3','Jul 16','Jul 22','Jul 23','Jul 30','Aug 3','Aug 15','Sep 4','Sep 7','Sep 11','Sep 12'];
-const wData=[91,87.5,82.4,79.8,80.2,79.7,78.8,80.4,77.5,78.5,77.3,81,81.6,82,81.6];
+// Weight data — date (YYYY-MM-DD), weight (kg)
+const allWeightEntries = [
+  {d:'2025-12-25',w:91},
+  {d:'2026-04-24',w:87.5},
+  {d:'2026-05-01',w:82.4},
+  {d:'2026-05-27',w:79.8},
+  {d:'2026-06-03',w:80.2},
+  {d:'2026-07-16',w:79.7},
+  {d:'2026-07-22',w:78.8},
+  {d:'2026-07-23',w:80.4},
+  {d:'2026-07-30',w:77.5},
+  {d:'2026-08-03',w:78.5},
+  {d:'2026-08-15',w:77.3},
+  {d:'2026-09-04',w:81},
+  {d:'2026-09-07',w:81.6},
+  {d:'2026-09-11',w:82},
+  {d:'2026-09-12',w:81.6},
+];
+
+function filterWeight(months) {
+  if (months === 'all') return allWeightEntries;
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - parseInt(months));
+  return allWeightEntries.filter(e => new Date(e.d) >= cutoff);
+}
+
+function showWeight(e, period) {
+  document.querySelectorAll('#weightCard .tab').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  const entries = filterWeight(period);
+  drawChart('weightChart', entries.map(e=>e.d.slice(5)), [{label:'Weight (kg)', data:entries.map(e=>e.w)}]);
+}
+
+const wLabels = allWeightEntries.map(e=>e.d.slice(5));
+const wData = allWeightEntries.map(e=>e.w);
 const wkA={labels:[1,2,3,4,5,6,7,8,9,10,11,12,13,14],datasets:[
   {label:'Shoulder Press',data:[34,34,38,38,42,42,43,43,45,45,45,50,50,50]},
   {label:'Incline Chest',data:[50,50,52,54,54,56,57.5,57.5,60,60,65,70,70,75]},
