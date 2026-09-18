@@ -108,17 +108,21 @@
 <div class="card">
   <h2>PRs</h2>
   <p class="sub">3 sets × 10 reps or bodyweight</p>
+  <div class="tabs pr-tabs">
+    <div class="tab active" onclick="showPRs(event,'all')">All Time</div>
+    <div class="tab" onclick="showPRs(event,'month')">Last Month</div>
+  </div>
   <div class="pr-grid">
-    <div class="pr-item"><span class="pr-name">Incline Chest</span><div><span class="pr-val">75kg</span><span class="pr-pct">+50%</span></div></div>
-    <div class="pr-item"><span class="pr-name">Shoulder Press</span><div><span class="pr-val">50kg</span><span class="pr-pct">+47%</span></div></div>
-    <div class="pr-item"><span class="pr-name">Seated Row</span><div><span class="pr-val">61kg</span><span class="pr-pct">+49%</span></div></div>
-    <div class="pr-item"><span class="pr-name">Lat Pulldown</span><div><span class="pr-val">60kg</span><span class="pr-pct">+33%</span></div></div>
-    <div class="pr-item"><span class="pr-name">Leg Press</span><div><span class="pr-val">155kg</span><span class="pr-pct">+17%</span></div></div>
-    <div class="pr-item"><span class="pr-name">Pec Fly</span><div><span class="pr-val">54kg</span><span class="pr-pct">+100%</span></div></div>
-    <div class="pr-item"><span class="pr-name">Pull Ups</span><div><span class="pr-val">5×3</span><span class="pr-pct">from 2 reps</span></div></div>
-    <div class="pr-item"><span class="pr-name">Chin Ups</span><div><span class="pr-val">6×3</span><span class="pr-pct">from 2 reps</span></div></div>
-    <div class="pr-item"><span class="pr-name">Bicep Curl</span><div><span class="pr-val">12kg</span><span class="pr-pct">+20%</span></div></div>
-    <div class="pr-item"><span class="pr-name">Tricep Pushdown</span><div><span class="pr-val">30kg</span><span class="pr-pct">new</span></div></div>
+    <div class="pr-item" data-all="75kg" data-all-pct="+50%" data-month="70kg" data-month-pct="+40%"><span class="pr-name">Incline Chest</span><div><span class="pr-val">75kg</span><span class="pr-pct">+50%</span></div></div>
+    <div class="pr-item" data-all="50kg" data-all-pct="+47%" data-month="45kg" data-month-pct="+32%"><span class="pr-name">Shoulder Press</span><div><span class="pr-val">50kg</span><span class="pr-pct">+47%</span></div></div>
+    <div class="pr-item" data-all="61kg" data-all-pct="+49%" data-month="55kg" data-month-pct="+34%"><span class="pr-name">Seated Row</span><div><span class="pr-val">61kg</span><span class="pr-pct">+49%</span></div></div>
+    <div class="pr-item" data-all="60kg" data-all-pct="+33%" data-month="55kg" data-month-pct="+22%"><span class="pr-name">Lat Pulldown</span><div><span class="pr-val">60kg</span><span class="pr-pct">+33%</span></div></div>
+    <div class="pr-item" data-all="155kg" data-all-pct="+17%" data-month="150kg" data-month-pct="+14%"><span class="pr-name">Leg Press</span><div><span class="pr-val">155kg</span><span class="pr-pct">+17%</span></div></div>
+    <div class="pr-item" data-all="54kg" data-all-pct="+100%" data-month="54kg" data-month-pct="+100%"><span class="pr-name">Pec Fly</span><div><span class="pr-val">54kg</span><span class="pr-pct">+100%</span></div></div>
+    <div class="pr-item" data-all="5×3" data-all-pct="from 2 reps" data-month="4×3" data-month-pct="from 2 reps"><span class="pr-name">Pull Ups</span><div><span class="pr-val">5×3</span><span class="pr-pct">from 2 reps</span></div></div>
+    <div class="pr-item" data-all="6×3" data-all-pct="from 2 reps" data-month="6×3" data-month-pct="from 2 reps"><span class="pr-name">Chin Ups</span><div><span class="pr-val">6×3</span><span class="pr-pct">from 2 reps</span></div></div>
+    <div class="pr-item" data-all="12kg" data-all-pct="+20%" data-month="12kg" data-month-pct="+20%"><span class="pr-name">Bicep Curl</span><div><span class="pr-val">12kg</span><span class="pr-pct">+20%</span></div></div>
+    <div class="pr-item" data-all="30kg" data-all-pct="new" data-month="28kg" data-month-pct="new"><span class="pr-name">Tricep Pushdown</span><div><span class="pr-val">30kg</span><span class="pr-pct">new</span></div></div>
   </div>
 </div>
 
@@ -669,6 +673,17 @@ window.addEventListener('load',()=>{
   const defaultEntries = filterWeight('12');
   drawChart('weightChart', defaultEntries.map(e=>e.d), [{label:'Weight (kg)',data:defaultEntries.map(e=>e.w)}]);
 });
+
+function showPRs(e, period) {
+  document.querySelectorAll('.pr-tabs .tab').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  document.querySelectorAll('.pr-item').forEach(item => {
+    const val = period === 'all' ? item.dataset.all : item.dataset.month;
+    const pct = period === 'all' ? item.dataset.allPct : item.dataset.monthPct;
+    item.querySelector('.pr-val').textContent = val;
+    item.querySelector('.pr-pct').textContent = pct;
+  });
+}
 </script>
 </body>
 </html>
