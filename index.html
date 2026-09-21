@@ -346,8 +346,8 @@ window.addEventListener('load', async () => {
       const kcals = nutrRows.map(r => parseFloat(r.calories_kcal));
       const proteins = nutrRows.map(r => parseFloat(r.protein_g));
 
-      // Calories chart — shaded target band 1700–1900
-      drawChartSingle('kcalChart', labels, kcals, '#ff9f4a', {bandLow: 1700, bandHigh: 1900});
+      // Calories chart — shaded target band 1700–1900, dotted maintenance at 2680
+      drawChartSingle('kcalChart', labels, kcals, '#ff9f4a', {bandLow: 1700, bandHigh: 1900, maintenance: 2680});
       // Protein chart — target line at 140g
       drawChartSingle('proteinChart', labels, proteins, '#4fc3f7', {targetLine: 140});
     } else {
@@ -384,6 +384,7 @@ function drawChartSingle(id, labels, data, color, opts) {
   let maxV = Math.max(...vals);
   if (opts.bandLow) { minV = Math.min(minV, opts.bandLow); maxV = Math.max(maxV, opts.bandHigh); }
   if (opts.targetLine) { minV = Math.min(minV, opts.targetLine); maxV = Math.max(maxV, opts.targetLine); }
+  if (opts.maintenance) { maxV = Math.max(maxV, opts.maintenance); }
   const pad = (maxV - minV) * 0.12 || 20;
   minV -= pad; maxV += pad;
 
@@ -411,6 +412,19 @@ function drawChartSingle(id, labels, data, color, opts) {
       ctx.fillStyle = 'rgba(255,159,74,0.55)'; ctx.font = '9px system-ui'; ctx.textAlign = 'left';
       ctx.fillText('1,900', PAD.left + cW + 4, yHigh + 3);
       ctx.fillText('1,700', PAD.left + cW + 4, yLow + 3);
+    }
+  }
+
+  // Maintenance dotted line
+  if (opts.maintenance) {
+    const y = yS(opts.maintenance);
+    ctx.strokeStyle = 'rgba(150,150,150,0.4)'; ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + cW, y); ctx.stroke();
+    ctx.setLineDash([]);
+    if (!isMobile) {
+      ctx.fillStyle = 'rgba(150,150,150,0.5)'; ctx.font = '9px system-ui'; ctx.textAlign = 'left';
+      ctx.fillText('2,680 maint.', PAD.left + cW + 4, y + 3);
     }
   }
 
