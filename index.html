@@ -371,7 +371,7 @@ function drawChartSingle(id, labels, data, color, opts) {
   const W = canvas.parentElement.offsetWidth - (isMobile ? 20 : 40);
   const H = canvas.height;
   canvas.width = W;
-  const PAD = {top:16, right: isMobile ? 10 : 20, bottom: isMobile ? 18 : 50, left: isMobile ? 40 : 50};
+  const PAD = {top:16, right: isMobile ? 10 : 90, bottom: isMobile ? 18 : 50, left: isMobile ? 40 : 50};
   const cW = W - PAD.left - PAD.right;
   const cH = H - PAD.top - PAD.bottom;
   ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, W, H);
@@ -385,7 +385,8 @@ function drawChartSingle(id, labels, data, color, opts) {
   if (opts.bandLow) { minV = Math.min(minV, opts.bandLow); maxV = Math.max(maxV, opts.bandHigh); }
   if (opts.targetLine) { minV = Math.min(minV, opts.targetLine); maxV = Math.max(maxV, opts.targetLine); }
   if (opts.maintenance) { maxV = Math.max(maxV, opts.maintenance); }
-  const pad = (maxV - minV) * 0.12 || 20;
+  const range = maxV - minV;
+  const pad = range * 0.15 || (opts.targetLine ? opts.targetLine * 0.15 : 20);
   minV -= pad; maxV += pad;
 
   const xS = i => PAD.left + (i / Math.max(labels.length - 1, 1)) * cW;
