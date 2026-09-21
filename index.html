@@ -21,10 +21,12 @@
   .tab.active { background: #ff9f4a; color: #000; border-color: #ff9f4a; font-weight: 600; }
   /* PR grid */
   .pr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .pr-item { background: #131313; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
-  .pr-name { font-size: 0.8rem; color: #999; }
-  .pr-val { font-size: 1rem; color: #ff9f4a; font-weight: 600; }
-  .pr-pct { font-size: 0.7rem; color: #666; margin-left: 4px; }
+  .pr-item { background: #131313; border-radius: 8px; padding: 10px 14px; }
+  .pr-name { font-size: 0.75rem; color: #999; margin-bottom: 4px; }
+  .pr-val { font-size: 1.1rem; color: #ff9f4a; font-weight: 600; display: block; margin-bottom: 6px; }
+  .pr-periods { display: flex; gap: 12px; }
+  .pr-period { font-size: 0.68rem; color: #555; }
+  .pr-period span { color: #888; }
   /* Workout tables */
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
   thead th { color: #666; text-transform: uppercase; letter-spacing: 1px; font-size: 0.68rem; padding: 8px 10px; border-bottom: 1px solid #252525; text-align: left; }
@@ -122,22 +124,18 @@
 <!-- PR SUMMARY -->
 <div class="card">
   <h2>PRs</h2>
-  <p class="sub">3 sets × 10 reps or bodyweight</p>
-  <div class="tabs pr-tabs">
-    <div class="tab active" onclick="showPRs(event,'month')">Last Month</div>
-    <div class="tab" onclick="showPRs(event,'all')">All Time</div>
-  </div>
+  <p class="sub">current weight · last month vs all time</p>
   <div class="pr-grid">
-    <div class="pr-item" data-all="75kg" data-all-pct="+50%" data-month="75kg" data-month-pct="+50%"><span class="pr-name">Incline Chest</span><div><span class="pr-val">75kg</span><span class="pr-pct">+50%</span></div></div>
-    <div class="pr-item" data-all="52.5kg" data-all-pct="+54%" data-month="52.5kg" data-month-pct="+54%"><span class="pr-name">Shoulder Press</span><div><span class="pr-val">52.5kg</span><span class="pr-pct">+54%</span></div></div>
-    <div class="pr-item" data-all="61kg" data-all-pct="+49%" data-month="61kg" data-month-pct="+49%"><span class="pr-name">Seated Row</span><div><span class="pr-val">61kg</span><span class="pr-pct">+49%</span></div></div>
-    <div class="pr-item" data-all="60kg" data-all-pct="+33%" data-month="60kg" data-month-pct="+33%"><span class="pr-name">Lat Pulldown</span><div><span class="pr-val">60kg</span><span class="pr-pct">+33%</span></div></div>
-    <div class="pr-item" data-all="155kg" data-all-pct="+17%" data-month="155kg" data-month-pct="+17%"><span class="pr-name">Leg Press</span><div><span class="pr-val">155kg</span><span class="pr-pct">+17%</span></div></div>
-    <div class="pr-item" data-all="54kg" data-all-pct="+100%" data-month="54kg" data-month-pct="+100%"><span class="pr-name">Pec Fly</span><div><span class="pr-val">54kg</span><span class="pr-pct">+100%</span></div></div>
-    <div class="pr-item" data-all="6×3" data-all-pct="from 2 reps" data-month="6×3" data-month-pct="from 2 reps"><span class="pr-name">Pull Ups</span><div><span class="pr-val">6×3</span><span class="pr-pct">from 2 reps</span></div></div>
-    <div class="pr-item" data-all="6×3" data-all-pct="from 2 reps" data-month="6×3" data-month-pct="from 2 reps"><span class="pr-name">Chin Ups</span><div><span class="pr-val">6×3</span><span class="pr-pct">from 2 reps</span></div></div>
-    <div class="pr-item" data-all="12kg" data-all-pct="+20%" data-month="12kg" data-month-pct="+20%"><span class="pr-name">Bicep Curl</span><div><span class="pr-val">12kg</span><span class="pr-pct">+20%</span></div></div>
-    <div class="pr-item" data-all="30kg" data-all-pct="new" data-month="30kg" data-month-pct="new"><span class="pr-name">Tricep Pushdown</span><div><span class="pr-val">30kg</span><span class="pr-pct">new</span></div></div>
+    <div class="pr-item"><div class="pr-name">Incline Chest</div><span class="pr-val">75kg</span><div class="pr-periods"><span class="pr-period">Last month <span>+50%</span></span><span class="pr-period">All time <span>+50%</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Shoulder Press</div><span class="pr-val">52.5kg</span><div class="pr-periods"><span class="pr-period">Last month <span>+54%</span></span><span class="pr-period">All time <span>+54%</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Seated Row</div><span class="pr-val">61kg</span><div class="pr-periods"><span class="pr-period">Last month <span>+49%</span></span><span class="pr-period">All time <span>+49%</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Lat Pulldown</div><span class="pr-val">60kg</span><div class="pr-periods"><span class="pr-period">Last month <span>+33%</span></span><span class="pr-period">All time <span>+33%</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Leg Press</div><span class="pr-val">155kg</span><div class="pr-periods"><span class="pr-period">Last month <span>+17%</span></span><span class="pr-period">All time <span>+17%</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Pec Fly</div><span class="pr-val">54kg</span><div class="pr-periods"><span class="pr-period">Last month <span>+100%</span></span><span class="pr-period">All time <span>+100%</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Pull Ups</div><span class="pr-val">6×3</span><div class="pr-periods"><span class="pr-period">Last month <span>from 2</span></span><span class="pr-period">All time <span>from 2</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Chin Ups</div><span class="pr-val">6×3</span><div class="pr-periods"><span class="pr-period">Last month <span>from 2</span></span><span class="pr-period">All time <span>from 2</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Bicep Curl</div><span class="pr-val">12kg</span><div class="pr-periods"><span class="pr-period">Last month <span>+20%</span></span><span class="pr-period">All time <span>+20%</span></span></div></div>
+    <div class="pr-item"><div class="pr-name">Tricep Pushdown</div><span class="pr-val">30kg</span><div class="pr-periods"><span class="pr-period">Last month <span>new</span></span><span class="pr-period">All time <span>new</span></span></div></div>
   </div>
 </div>
 
@@ -333,12 +331,6 @@ window.addEventListener('load', async () => {
     if (e1m) { const d = latest.w - e1m.w; document.querySelector('.stat:nth-child(3) .stat-val').textContent = (d>=0?'+':'') + d.toFixed(1) + 'kg'; }
   }
 
-  // Init PRs to last month view
-  document.querySelectorAll('.pr-item').forEach(item => {
-    item.querySelector('.pr-val').textContent = item.dataset.month;
-    item.querySelector('.pr-pct').textContent = item.dataset.monthPct;
-  });
-
   // Draw weight chart
   const defaultEntries = filterWeight('12');
   drawChart('weightChart', defaultEntries.map(e=>e.d), [{label:'Weight (kg)',data:defaultEntries.map(e=>e.w)}]);
@@ -467,16 +459,6 @@ function drawChartSingle(id, labels, data, color, opts) {
   }
 }
 
-function showPRs(e, period) {
-  document.querySelectorAll('.pr-tabs .tab').forEach(t => t.classList.remove('active'));
-  e.target.classList.add('active');
-  document.querySelectorAll('.pr-item').forEach(item => {
-    const val = period === 'all' ? item.dataset.all : item.dataset.month;
-    const pct = period === 'all' ? item.dataset.allPct : item.dataset.monthPct;
-    item.querySelector('.pr-val').textContent = val;
-    item.querySelector('.pr-pct').textContent = pct;
-  });
-}
 </script>
 </body>
 </html>
