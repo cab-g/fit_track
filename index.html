@@ -109,8 +109,8 @@
   <h2>PRs</h2>
   <p class="sub">3 sets × 10 reps or bodyweight</p>
   <div class="tabs pr-tabs">
-    <div class="tab active" onclick="showPRs(event,'all')">All Time</div>
-    <div class="tab" onclick="showPRs(event,'month')">Last Month</div>
+    <div class="tab active" onclick="showPRs(event,'month')">Last Month</div>
+    <div class="tab" onclick="showPRs(event,'all')">All Time</div>
   </div>
   <div class="pr-grid">
     <div class="pr-item" data-all="75kg" data-all-pct="+50%" data-month="70kg" data-month-pct="+40%"><span class="pr-name">Incline Chest</span><div><span class="pr-val">75kg</span><span class="pr-pct">+50%</span></div></div>
@@ -297,6 +297,11 @@ window.addEventListener('load', async () => {
     if (e1m) { const d = latest.w - e1m.w; document.querySelector('.stat:nth-child(3) .stat-val').textContent = (d>=0?'+':'') + d.toFixed(1) + 'kg'; }
   }
 
+  // Init PRs to last month view
+  document.querySelectorAll('.pr-item').forEach(item => {
+    item.querySelector('.pr-val').textContent = item.dataset.month;
+    item.querySelector('.pr-pct').textContent = item.dataset.monthPct;
+  });
   const defaultEntries = filterWeight('12');
   drawChart('weightChart', defaultEntries.map(e=>e.d), [{label:'Weight (kg)',data:defaultEntries.map(e=>e.w)}]);
 });
