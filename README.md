@@ -1,6 +1,6 @@
 # crab track 🦀
 
-Personal gym progress dashboard — tracking lifts, weight and PRs on the road to the Fight Club physique.
+Personal gym progress dashboard — tracking lifts, weight, PRs and nutrition.
 
 **Live dashboard:** https://cab-g.github.io/fit_track/
 
