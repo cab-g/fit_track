@@ -35,6 +35,10 @@
   tbody td:first-child { color: #f0f0f0; font-weight: 500; }
   .pr-tag { display: inline-block; background: rgba(255,159,74,0.15); color: #ff9f4a; font-size: 0.6rem; padding: 1px 6px; border-radius: 10px; margin-left: 6px; letter-spacing: 0.5px; }
   .peak { color: #ff9f4a; font-weight: 600; }
+  /* Nutrition legend */
+  .nutr-legend { display: flex; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+  .nutr-legend span { font-size: 0.72rem; color: #888; display: flex; align-items: center; gap: 6px; }
+  .nutr-legend i { display: inline-block; width: 20px; height: 3px; border-radius: 2px; }
 
   /* Mobile */
   @media (max-width: 600px) {
@@ -102,6 +106,19 @@
     <div class="tab" onclick="showWeight(event,'1')">1 month</div>
   </div>
   <canvas id="weightChart" height="220"></canvas>
+</div>
+
+<!-- NUTRITION CHART -->
+<div class="card" id="nutritionCard">
+  <h2>nutrition</h2>
+  <p class="sub">target: 1,700–1,900 kcal · 140g+ protein</p>
+  <div class="nutr-legend">
+    <span><i style="background:#ff9f4a"></i>Calories (kcal)</span>
+    <span><i style="background:#4fc3f7"></i>Protein (g)</span>
+    <span style="color:#444">— target kcal: 1,700–1,900 · target protein: 140g</span>
+  </div>
+  <canvas id="nutritionChart" height="220"></canvas>
+  <div id="nutritionEmpty" style="display:none;text-align:center;padding:40px 0;color:#444;font-size:0.8rem;">No nutrition data logged yet</div>
 </div>
 
 <!-- PR SUMMARY -->
@@ -193,7 +210,7 @@ function filterWeight(months) {
   return allWeightEntries.filter(e => new Date(e.d) >= cutoff);
 }
 
-function drawChart(id, labels, datasets) {
+function drawChart(id, labels, datasets, targetLines) {
   const canvas = document.getElementById(id);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -201,13 +218,14 @@ function drawChart(id, labels, datasets) {
   const W = canvas.parentElement.offsetWidth - (isMobile ? 20 : 40);
   const H = canvas.height;
   canvas.width = W;
-  const PAD = {top:20, right: isMobile ? 10 : 130, bottom: isMobile ? 20 : 60, left: isMobile ? 35 : 50};
+  const PAD = {top:20, right: isMobile ? 10 : 130, bottom: isMobile ? 20 : 60, left: isMobile ? 40 : 55};
   const cW = W-PAD.left-PAD.right;
   const cH = H-PAD.top-PAD.bottom;
   ctx.fillStyle='#1a1a1a'; ctx.fillRect(0,0,W,H);
   const allVals = datasets.flatMap(d=>d.data).filter(v=>v!=null);
-  const minV = Math.min(...allVals)*0.93;
-  const maxV = Math.max(...allVals)*1.04;
+  if (allVals.length === 0) return;
+  const minV = Math.min(...allVals)*0.9;
+  const maxV = Math.max(...allVals)*1.07;
   const xS = i => PAD.left+(i/(Math.max(labels.length-1,1)))*cW;
   const yS = v => PAD.top+cH-((v-minV)/(maxV-minV))*cH;
   const COLORS=['#ff9f4a','#4fc3f7','#ef9a9a','#ffb74d','#ce93d8','#80cbc4'];
@@ -217,6 +235,26 @@ function drawChart(id, labels, datasets) {
     ctx.beginPath(); ctx.moveTo(PAD.left,y); ctx.lineTo(PAD.left+cW,y); ctx.stroke();
     ctx.fillStyle='#555'; ctx.font='11px system-ui'; ctx.textAlign='right';
     ctx.fillText(Math.round(val),PAD.left-6,y+4);
+  }
+  // Draw target lines
+  if (targetLines) {
+    targetLines.forEach(tl => {
+      if (tl.value < minV || tl.value > maxV) return;
+      const y = yS(tl.value);
+      ctx.save();
+      ctx.strokeStyle = tl.color || '#444';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left+cW, y); ctx.stroke();
+      ctx.setLineDash([]);
+      if (!isMobile) {
+        ctx.fillStyle = tl.color || '#444';
+        ctx.font = '9px system-ui';
+        ctx.textAlign = 'left';
+        ctx.fillText(tl.label, PAD.left+cW+8, y+3);
+      }
+      ctx.restore();
+    });
   }
   // Skip x labels on mobile
   if (!isMobile) {
@@ -248,8 +286,7 @@ function drawChart(id, labels, datasets) {
       first=false;
     });
     ctx.stroke();
-    // dots removed for cleaner line
-    if(datasets.length>1 && !isMobile){
+    if(!isMobile){
       const ly=PAD.top+di*20;
       ctx.fillStyle=col; ctx.fillRect(PAD.left+cW+8,ly-5,14,3);
       ctx.fillStyle='#aaa'; ctx.font='10px system-ui'; ctx.textAlign='left';
@@ -272,13 +309,14 @@ function showWorkout(e,idx) {
 }
 
 window.addEventListener('load', async () => {
+  // Fetch weight
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/weight_entries?select=date,weight_kg&order=date.asc&limit=2000`, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
     const rows = await res.json();
     allWeightEntries = rows.map(r => ({ d: r.date, w: parseFloat(r.weight_kg) }));
-  } catch(e) { console.warn('Supabase fetch failed, using cached data', e); }
+  } catch(e) { console.warn('Weight fetch failed', e); }
 
   // Update stat cards
   if (allWeightEntries.length > 0) {
@@ -302,8 +340,41 @@ window.addEventListener('load', async () => {
     item.querySelector('.pr-val').textContent = item.dataset.month;
     item.querySelector('.pr-pct').textContent = item.dataset.monthPct;
   });
+
+  // Draw weight chart
   const defaultEntries = filterWeight('12');
   drawChart('weightChart', defaultEntries.map(e=>e.d), [{label:'Weight (kg)',data:defaultEntries.map(e=>e.w)}]);
+
+  // Fetch nutrition
+  try {
+    const res2 = await fetch(`${SUPABASE_URL}/rest/v1/nutrition_log?select=date,calories_kcal,protein_g&order=date.asc&limit=500`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const nutrRows = await res2.json();
+    if (nutrRows && nutrRows.length > 0) {
+      const labels = nutrRows.map(r => r.date);
+      const kcals = nutrRows.map(r => parseFloat(r.calories_kcal));
+      const proteins = nutrRows.map(r => parseFloat(r.protein_g));
+      drawChart('nutritionChart', labels,
+        [
+          {label: 'Calories (kcal)', data: kcals},
+          {label: 'Protein (g)', data: proteins}
+        ],
+        [
+          {value: 1700, label: '1,700 kcal', color: 'rgba(255,159,74,0.35)'},
+          {value: 1900, label: '1,900 kcal', color: 'rgba(255,159,74,0.35)'},
+          {value: 140,  label: '140g protein', color: 'rgba(79,195,247,0.35)'}
+        ]
+      );
+    } else {
+      document.getElementById('nutritionChart').style.display = 'none';
+      document.getElementById('nutritionEmpty').style.display = 'block';
+    }
+  } catch(e2) {
+    console.warn('Nutrition fetch failed', e2);
+    document.getElementById('nutritionChart').style.display = 'none';
+    document.getElementById('nutritionEmpty').style.display = 'block';
+  }
 });
 
 function showPRs(e, period) {
