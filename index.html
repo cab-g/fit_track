@@ -112,12 +112,10 @@
 <div class="card" id="nutritionCard">
   <h2>nutrition</h2>
   <p class="sub">target: 1,700–1,900 kcal · 140g+ protein</p>
-  <div class="nutr-legend">
-    <span><i style="background:#ff9f4a"></i>Calories (kcal)</span>
-    <span><i style="background:#4fc3f7"></i>Protein (g)</span>
-    <span style="color:#444">— target kcal: 1,700–1,900 · target protein: 140g</span>
-  </div>
-  <canvas id="nutritionChart" height="220"></canvas>
+  <div style="font-size:0.7rem;color:#ff9f4a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Calories (kcal)</div>
+  <canvas id="kcalChart" height="140"></canvas>
+  <div style="font-size:0.7rem;color:#4fc3f7;text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px;">Protein (g)</div>
+  <canvas id="proteinChart" height="140"></canvas>
   <div id="nutritionEmpty" style="display:none;text-align:center;padding:40px 0;color:#444;font-size:0.8rem;">No nutrition data logged yet</div>
 </div>
 
@@ -355,27 +353,119 @@ window.addEventListener('load', async () => {
       const labels = nutrRows.map(r => r.date);
       const kcals = nutrRows.map(r => parseFloat(r.calories_kcal));
       const proteins = nutrRows.map(r => parseFloat(r.protein_g));
-      drawChart('nutritionChart', labels,
-        [
-          {label: 'Calories (kcal)', data: kcals},
-          {label: 'Protein (g)', data: proteins}
-        ],
-        [
-          {value: 1700, label: '1,700 kcal', color: 'rgba(255,159,74,0.35)'},
-          {value: 1900, label: '1,900 kcal', color: 'rgba(255,159,74,0.35)'},
-          {value: 140,  label: '140g protein', color: 'rgba(79,195,247,0.35)'}
-        ]
-      );
+
+      // Calories chart — shaded target band 1700–1900
+      drawChartSingle('kcalChart', labels, kcals, '#ff9f4a', {bandLow: 1700, bandHigh: 1900});
+      // Protein chart — target line at 140g
+      drawChartSingle('proteinChart', labels, proteins, '#4fc3f7', {targetLine: 140});
     } else {
-      document.getElementById('nutritionChart').style.display = 'none';
+      document.getElementById('kcalChart').style.display = 'none';
+      document.getElementById('proteinChart').style.display = 'none';
       document.getElementById('nutritionEmpty').style.display = 'block';
     }
   } catch(e2) {
     console.warn('Nutrition fetch failed', e2);
-    document.getElementById('nutritionChart').style.display = 'none';
+    document.getElementById('kcalChart').style.display = 'none';
+    document.getElementById('proteinChart').style.display = 'none';
     document.getElementById('nutritionEmpty').style.display = 'block';
   }
 });
+
+function drawChartSingle(id, labels, data, color, opts) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const isMobile = window.innerWidth <= 600;
+  const W = canvas.parentElement.offsetWidth - (isMobile ? 20 : 40);
+  const H = canvas.height;
+  canvas.width = W;
+  const PAD = {top:16, right: isMobile ? 10 : 20, bottom: isMobile ? 18 : 50, left: isMobile ? 40 : 50};
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+  ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0, 0, W, H);
+
+  const vals = data.filter(v => v != null);
+  if (vals.length === 0) return;
+
+  // Determine range — pad around data but always include targets
+  let minV = Math.min(...vals);
+  let maxV = Math.max(...vals);
+  if (opts.bandLow) { minV = Math.min(minV, opts.bandLow); maxV = Math.max(maxV, opts.bandHigh); }
+  if (opts.targetLine) { minV = Math.min(minV, opts.targetLine); maxV = Math.max(maxV, opts.targetLine); }
+  const pad = (maxV - minV) * 0.12 || 20;
+  minV -= pad; maxV += pad;
+
+  const xS = i => PAD.left + (i / Math.max(labels.length - 1, 1)) * cW;
+  const yS = v => PAD.top + cH - ((v - minV) / (maxV - minV)) * cH;
+
+  // Grid lines
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD.top + (i / 4) * cH;
+    const val = maxV - (i / 4) * (maxV - minV);
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + cW, y); ctx.stroke();
+    ctx.fillStyle = '#555'; ctx.font = '11px system-ui'; ctx.textAlign = 'right';
+    const roundTo = maxV > 500 ? 50 : 10;
+    ctx.fillText(Math.round(val / roundTo) * roundTo, PAD.left - 6, y + 4);
+  }
+
+  // Shaded target band (calories) — solid fill
+  if (opts.bandLow && opts.bandHigh) {
+    const yHigh = yS(opts.bandHigh);
+    const yLow = yS(opts.bandLow);
+    ctx.fillStyle = 'rgba(255,159,74,0.12)';
+    ctx.fillRect(PAD.left, yHigh, cW, yLow - yHigh);
+    if (!isMobile) {
+      ctx.fillStyle = 'rgba(255,159,74,0.55)'; ctx.font = '9px system-ui'; ctx.textAlign = 'left';
+      ctx.fillText('1,900', PAD.left + cW + 4, yHigh + 3);
+      ctx.fillText('1,700', PAD.left + cW + 4, yLow + 3);
+    }
+  }
+
+  // Target line (protein) — solid
+  if (opts.targetLine) {
+    const y = yS(opts.targetLine);
+    ctx.strokeStyle = 'rgba(79,195,247,0.45)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + cW, y); ctx.stroke();
+    if (!isMobile) {
+      ctx.fillStyle = 'rgba(79,195,247,0.55)'; ctx.font = '9px system-ui'; ctx.textAlign = 'left';
+      ctx.fillText('140g', PAD.left + cW + 4, y + 3);
+    }
+  }
+
+  // Data line
+  ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+  ctx.beginPath(); let first = true;
+  data.forEach((v, i) => {
+    if (v == null) return;
+    first ? ctx.moveTo(xS(i), yS(v)) : ctx.lineTo(xS(i), yS(v));
+    first = false;
+  });
+  ctx.stroke();
+
+  // Dots
+  data.forEach((v, i) => {
+    if (v == null) return;
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(xS(i), yS(v), 3.5, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // X labels
+  if (!isMobile) {
+    const step = Math.max(1, Math.floor(labels.length / 10));
+    let lastLbl = '';
+    labels.forEach((l, i) => {
+      const lbl = String(l).slice(0, 7);
+      if ((i % step === 0 || i === labels.length - 1) && lbl !== lastLbl) {
+        lastLbl = lbl;
+        ctx.save(); ctx.translate(xS(i), PAD.top + cH + 12);
+        ctx.rotate(-Math.PI / 5);
+        ctx.fillStyle = '#555'; ctx.font = '10px system-ui'; ctx.textAlign = 'right';
+        ctx.fillText(lbl, 0, 0); ctx.restore();
+      }
+    });
+  }
+}
 
 function showPRs(e, period) {
   document.querySelectorAll('.pr-tabs .tab').forEach(t => t.classList.remove('active'));
