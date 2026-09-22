@@ -91,9 +91,9 @@
 <h1>crab track 💪</h1>
 
 <div class="stats">
-  <div class="stat"><div class="stat-val">82.0kg</div><div class="stat-label">Current Weight</div></div>
-  <div class="stat"><div class="stat-val">-5.0kg</div><div class="stat-label">6 Month Change</div></div>
-  <div class="stat"><div class="stat-val">+4.0kg</div><div class="stat-label">1 Month Change</div></div>
+  <div class="stat"><div class="stat-val" id="statCurrent">—</div><div class="stat-label">Current Weight</div></div>
+  <div class="stat"><div class="stat-val" id="stat6m">—</div><div class="stat-label">6 Month Change</div></div>
+  <div class="stat"><div class="stat-val" id="stat1m">—</div><div class="stat-label">1 Month Change</div></div>
   
 </div>
 
@@ -327,9 +327,9 @@ window.addEventListener('load', async () => {
       return best;
     };
     const e1m = find(ago1m), e6m = find(ago6m);
-    document.querySelector('.stat:nth-child(1) .stat-val').textContent = latest.w.toFixed(1) + 'kg';
-    if (e6m) { const d = latest.w - e6m.w; document.querySelector('.stat:nth-child(2) .stat-val').textContent = (d>=0?'+':'') + d.toFixed(1) + 'kg'; }
-    if (e1m) { const d = latest.w - e1m.w; document.querySelector('.stat:nth-child(3) .stat-val').textContent = (d>=0?'+':'') + d.toFixed(1) + 'kg'; }
+    document.getElementById('statCurrent').textContent = latest.w.toFixed(1) + 'kg';
+    if (e6m) { const d = latest.w - e6m.w; document.getElementById('stat6m').textContent = (d>=0?'+':'') + d.toFixed(1) + 'kg'; }
+    if (e1m) { const d = latest.w - e1m.w; document.getElementById('stat1m').textContent = (d>=0?'+':'') + d.toFixed(1) + 'kg'; }
   }
 
   // Draw weight chart
